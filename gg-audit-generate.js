@@ -22,8 +22,6 @@ return generateAudits(exampleAudit, numOrganizations, numAuditors, numProducts, 
 })
 
 function generateAudits(numOrganizations, numAuditors, numProducts, numYears) {
-  let domain = 'https://localhost:3000'
-  let token = '1Q6jB38fh5MBChv9t8KZxNr2lDeGPt2s49KnoR-z'
   let organizations = [] 
   for(var i = 0; i < numAuditors; i++) {
     organizations.push(randAudits.randomOrganization())
