@@ -1,0 +1,12 @@
+PGFS-Audit-DefaultExample.js
+GlobalGAP_FullAudit.js
+node_modules
+
+*.swp
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
