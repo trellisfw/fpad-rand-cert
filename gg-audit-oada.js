@@ -13,12 +13,6 @@ var numOperations = parseInt(process.argv[6]);
 var minimizeAudit = process.argv[7];
 
 //Convert and upload data from yield_data_directory to the OADA server
-return generateAudits(exampleAudit, numOrganizations, numAuditors, numProducts, numYears, minimizeAudit)
-.then((r) => {
-}).catch((err) => {
-  console.log(err)
-})
-
 function generateAudits(numOrganizations, numAuditors, numProducts, numYears) {
   let organizations = [] 
   for(var i = 0; i < numAuditors; i++) {
@@ -39,6 +33,7 @@ function generateAudits(numOrganizations, numAuditors, numProducts, numYears) {
 
   let audits = [];
   let iii = 1;
+
   return Promise.map(organizations, (org) => {
     let orgid = uuid.v4()
     return Promise.map(auditors, (aud) => {
@@ -48,7 +43,20 @@ function generateAudits(numOrganizations, numAuditors, numProducts, numYears) {
             console.log(iii++)
             let scope = randAudits.randomScope(org, prod, op)
             let audit = randAudits.generateAudit(exampleAudit, org, aud, scope, yr, minimizeAudit)
-            return fs.writeFileSync('./randomAudits/'+uuid.v4()+'.js', JSON.stringify(audit))
+            return agent('PUT', 'https://api.oada-dev.com/bookmarks/fpad/certifications/id-index')
+            .set('Authorization', 'Bearer '+ 'Oe33rwODi6hw8b_HXxFYsZxGJKZn9YwvfURFBWT
+            .send({ })  
+            .end()
+            .then((response) => {
+              console.log(response)
+              return agent('PUT', 'https://api.oada-dev.com/bookmarks/fpad/certifications/id-index')
+              .set('Authorization', 'Bearer '+ 'Oe33rwODi6hw8b_HXxFYsZxGJKZn9YwvfURFBWT
+              .send({
+                _id: 'resources/'+uuid.v4(),
+                _rev: '0-0'
+              })  
+              .end()
+            })           
           }, {concurrency: 1})
         }, {concurrency: 1})
       }, {concurrency: 5})

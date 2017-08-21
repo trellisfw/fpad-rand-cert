@@ -31,7 +31,7 @@ let operationTypes = [
 function randomOrganization() {
   let name = faker.name.firstName()+' '+faker.name.lastName()
   let randOrg = {
-    name: name+' Produce',
+    name: name.split(' ')[1]+' Produce',
     contacts: [
       { name: name }
     ],
@@ -91,7 +91,7 @@ function randomProductObserved(operation_type, product) {
 function randomProductionSite(product, area) {
   return {
     name: `The Big  ${product} Ranch`,
-    id: Math.random()*10000,
+    id: (Math.round(Math.random()*10000)).toString(),
     products_observed: [ {
       name: product,
       organic: (Math.random() >= 0.5),
