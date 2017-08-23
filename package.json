@@ -1,6 +1,6 @@
 {
   "name": "fpad-rand-cert",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "",
   "main": "gg-audit-randomize.js",
   "scripts": {

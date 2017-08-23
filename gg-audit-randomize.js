@@ -53,9 +53,9 @@ function randomOrganization(name) {
   return randOrg
 }
 
-function randomAuditor() {
+function randomAuditor(name) {
   return {
-    name: faker.name.firstName() +' '+ faker.name.lastName(),
+    name: name || faker.name.firstName() +' '+ faker.name.lastName(),
   }
 }
 
@@ -71,6 +71,7 @@ function randomScope(organization, product, operation) {
   }
   scope.products_observed = [randomProductObserved(operation, product)],
   scope.product_sites = [randomProductionSite(product, (parseInt(scope.products_observed.first_area) + parseInt(scope.products_observed.further_area)).toString())]
+  return scope
 }
 
 function randomProductObserved(operation_type, product) {
