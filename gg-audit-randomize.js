@@ -28,8 +28,8 @@ let operationTypes = [
   'handling'
 ]
 
-function randomOrganization() {
-  let name = faker.name.firstName()+' '+faker.name.lastName()
+function randomOrganization(name) {
+  name = name || faker.name.firstName()+' '+faker.name.lastName()
   let randOrg = {
     name: name.split(' ')[1]+' Produce',
     contacts: [
