@@ -1,6 +1,11 @@
 'use strict'
 let _ = require('lodash')
 let faker = require('faker')
+let certifyingBodies = [
+	'SCS Global Services',
+	'Primus Ops',
+	'AbcAudits',
+]
 let products = [
   'Carrots',
   'Strawberries',
@@ -27,22 +32,37 @@ let operationTypes = [
   'growing',
   'handling'
 ]
+let farmNames = [
+	'Produce',
+	'Farms',
+	'Brothers Farms',
+	'Family Farms',
+	'Bountiful Harvest',
+	'Farms, LLC',
+]
 
-function randomOrganization(name) {
-  name = name || faker.name.firstName()+' '+faker.name.lastName()
-  let randOrg = {
-    name: name.split(' ')[1]+' Produce',
+function randomLocation(data) {
+	return {
+		address: data.address || faker.address.streetAddress(),
+    city: data.city || faker.address.city(), 
+    state: data.state || faker.address.state(),
+    country: data.country || "USA",
+    description: data.description || "(All sites in same area), Pesticide storage",
+  }
+}
+
+function randomOrganization(data) {
+  let name = data.name || faker.name.firstName()+' '+faker.name.lastName()
+	// TODO: currently making up a last name. 
+	if (name.split(' ').length === 1) name = name+' '+faker.name.lastName();
+  return {
+    name: name.split(' ')[1]+' '+farmNames[Math.round(Math.random()*farmNames.length-1)],
     contacts: [
       { name: name }
     ],
-    location: {
-      address: faker.address.streetAddress(),
-      city: faker.address.city(), 
-      state: faker.address.state(),
-      country: "USA",
-      description: "(All sites in same area), Pesticide storage",
-    },
-    organizationid: {
+    location: randomLocation(data.location || {}),
+		//TODO: didn't have time.  let this be optional
+		organizationid: data.organizationid || {
       id: Math.round(Math.random()*1000000000).toString(),
       id_source: "scheme",
       otherids: [
@@ -50,17 +70,22 @@ function randomOrganization(name) {
       ],
     }
   }
-  return randOrg
 }
 
-function randomAuditor(name) {
+function randomCertifyingBody(data) {
+	return {
+		name: data.name || certifyingBodies[Math.round(Math.random()*certifyingBodies.length-1)],
+		auditor: randomAuditor(data.auditor || {})
+	}
+}
+
+function randomAuditor(data) {
   return {
-    name: name || faker.name.firstName() +' '+ faker.name.lastName(),
+    name: data.name || faker.name.firstName() +' '+ faker.name.lastName(),
   }
 }
 
 function randomScope(data) {
-	console.log(data)
   let scope = {
     notification: data.notification || (Math.random() >= 0.5) ? 'announced' : 'unannounced',
     description: data.description || "",
@@ -169,12 +194,14 @@ function randomOperationTypes(numOperations) {
 }
 
 // Past 10 years by default; TODO: set date range
-function randomYear(data) {
+function randomYear() {
 	return Math.round(Math.random()*10) + (new Date().getFullYear() - 10);
 }
 
+
 // Generate a random audit
 function generateAudit(data) {
+	//TODO: the whole idea of a "template" is unnecessary
 	if (!data.template) return new Error('\"template\" field required with example audit')
   let auditOut = _.cloneDeep(data.template)
 
@@ -184,18 +211,18 @@ function generateAudit(data) {
   auditOut.certificationid = data.certificationid || certid + ' - Cert: '+certNum
 
 //Modify auditor name
-  auditOut.certifying_body.auditor = data.auditor || this.randomAuditor(); 
+  auditOut.certifying_body = randomCertifyingBody(data.certifying_body || {});
   
 // Modify the organization with random info
-  auditOut.organization = data.organization || this.randomOrganization()
+  auditOut.organization =  this.randomOrganization(data.organization || {});
 
 //Modify scope with random info
   auditOut.scope = this.randomScope(data.scope || {})
 
 //Modify scope with random info
-  let randDateMs = new Date(Math.round(Math.random() * Date.now())).setFullYear(randomYear(data.year || {}))
+  let randDateMs = new Date(Math.round(Math.random() * Date.now())).setFullYear(data.year || randomYear())
   auditOut.conditions_during_audit = { 
-    operation_observed_date: new Date(randDateMs).toJSON(),
+    operation_observed_date: data.operation_observed_date || new Date(randDateMs).toJSON(),
     duration: { value: (Math.round(Math.random()*5) + 1).toString(), units: 'hours', },
   }
 
