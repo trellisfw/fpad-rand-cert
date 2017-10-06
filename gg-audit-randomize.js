@@ -1,5 +1,5 @@
 'use strict'
-let _ = require('lodash')
+let lodash = require('lodash')
 let faker = require('faker')
 let certifyingBodies = [
 	'SCS Global Services',
@@ -203,7 +203,7 @@ function randomYear() {
 function generateAudit(data) {
 	//TODO: the whole idea of a "template" is unnecessary
 	if (!data.template) return new Error('\"template\" field required with example audit')
-  let auditOut = _.cloneDeep(data.template)
+  let auditOut = lodash.cloneDeep(data.template)
 
 // Randomize certificationid 
   let certid = data.certid || Math.round(Math.random() * 10000).toString()
