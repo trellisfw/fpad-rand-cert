@@ -1,5 +1,5 @@
 'use strict'
-let lodash = require('lodash')
+let _ = require('lodash')
 let faker = require('faker')
 let certifyingBodies = [
 	'SCS Global Services',
@@ -51,12 +51,16 @@ function randomLocation(data) {
   }
 }
 
+function randomEntry(array) {
+	return array[Math.round(Math.random()*(array.length-1))]
+}
+
 function randomOrganization(data) {
   let name = data.name || faker.name.firstName()+' '+faker.name.lastName()
 	// TODO: currently making up a last name. 
 	if (name.split(' ').length === 1) name = name+' '+faker.name.lastName();
   return {
-    name: name.split(' ')[1]+' '+farmNames[Math.round(Math.random()*farmNames.length-1)],
+    name: name.split(' ')[name.split(' ').length-1]+' '+randomEntry(farmNames),
     contacts: [
       { name: name }
     ],
@@ -74,7 +78,7 @@ function randomOrganization(data) {
 
 function randomCertifyingBody(data) {
 	return {
-		name: data.name || certifyingBodies[Math.round(Math.random()*certifyingBodies.length-1)],
+		name: data.name || randomEntry(certifyingBodies),
 		auditor: randomAuditor(data.auditor || {})
 	}
 }
@@ -90,7 +94,7 @@ function randomScope(data) {
     notification: data.notification || (Math.random() >= 0.5) ? 'announced' : 'unannounced',
     description: data.description || "",
     operations: data.operations || [
-      { operation_type: randomOperation() } ,
+      { operation_type: randomEntry(operationTypes) } ,
     ],
     parallel_ownership: data.parallel_ownership || Math.random() >= 0.5,
     parallel_production: data.parallel_ownership || Math.random() >= 0.5,
@@ -125,7 +129,7 @@ function randomProductObserved(data) {
     first_area: data.first_area || { value: (Math.round(Math.random()*100)).toString(), units: 'acres' },
     further_area: data.further_area || { value: (Math.round(Math.random()*100)).toString(), units: 'acres' },
     operations: data.operations || [
-      { operation_type: randomOperation() }
+      { operation_type: randomEntry(operationTypes) }
     ],
   }
 	productObserved.operations.forEach((op, i) => {
@@ -135,19 +139,6 @@ function randomProductObserved(data) {
 		}
   })
   return productObserved;
-}
-
-/* Unfinished because unnecessary as long as theres only one key
-function randomOperations() {
-  let ops = []
-	data.forEach((operation, i) => {
-		ops[i] = randomOperation
-	})
-}
-*/
-
-function randomOperation() {
-	return operationTypes[Math.round(Math.random()*operationTypes.length-1)]
 }
 
 function randomProductionSites(data) {
@@ -203,7 +194,7 @@ function randomYear() {
 function generateAudit(data) {
 	//TODO: the whole idea of a "template" is unnecessary
 	if (!data.template) return new Error('\"template\" field required with example audit')
-  let auditOut = lodash.cloneDeep(data.template)
+  let auditOut = _.cloneDeep(data.template)
 
 // Randomize certificationid 
   let certid = data.certid || Math.round(Math.random() * 10000).toString()
@@ -329,7 +320,6 @@ module.exports = {
   randomScope,
   randomOrganization,
   randomAuditor,
-	randomOperation,
   randomOperationTypes,
 	randomYear,
 }
