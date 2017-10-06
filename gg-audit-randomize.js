@@ -59,50 +59,99 @@ function randomAuditor(name) {
   }
 }
 
-function randomScope(organization, product, operation) {
+function randomScope(data) {
+	console.log(data)
   let scope = {
-    notification: (Math.random() >= 0.5) ? 'announced' : 'unannounced',
-    description: "",
-    operations: [
-      { operation_type: operation } ,
+    notification: data.notification || (Math.random() >= 0.5) ? 'announced' : 'unannounced',
+    description: data.description || "",
+    operations: data.operations || [
+      { operation_type: randomOperation() } ,
     ],
-    parallel_ownership: Math.random() >= 0.5,
-    parallel_production: Math.random() >= 0.5,
+    parallel_ownership: data.parallel_ownership || Math.random() >= 0.5,
+    parallel_production: data.parallel_ownership || Math.random() >= 0.5,
   }
-  scope.products_observed = [randomProductObserved(operation, product)],
-  scope.product_sites = [randomProductionSite(product, (parseInt(scope.products_observed.first_area) + parseInt(scope.products_observed.further_area)).toString())]
+  scope.products_observed = randomProductsObserved(data.products_observed || []),
+	// This one is a bit tricky because it should have the same products_observed as listed above. 
+  scope.product_sites = randomProductionSites(data.product_sites || [randomProductionSite({ 
+		products_observed: scope.products_observed, 
+		area: { 
+			// TODO: might crash if further_area is undefined
+			value: (parseInt(scope.products_observed[0].first_area) + parseInt(scope.products_observed[0].further_area)).toString(),
+			units: scope.products_observed[0].first_area.units
+		}
+	})])
   return scope
 }
 
-function randomProductObserved(operation_type, product) {
+// Since the audit expects a plural array of products, this lets an array of 
+// "half-finished" products get passed in and each finished, randomly
+function randomProductsObserved(data) {
+	let products_observed = []
+	data.forEach((product_observed, i) => {
+		products_observed[i] = randomProductObserved(product_observed)
+	})
+	if (products_observed.length < 1) products_observed[0] = randomProductObserved({})
+	return products_observed
+}
+
+function randomProductObserved(data) {
   let productObserved = {
-    name: product,
-    first_area: { value: (Math.round(Math.random()*100)).toString(), units: 'acres' },
-    further_area: { value: (Math.round(Math.random()*100)).toString(), units: 'acres' },
-    operations: [
-      { operation_type: operation_type}
+    name: data.name || randomProducts(1)[0],
+    first_area: data.first_area || { value: (Math.round(Math.random()*100)).toString(), units: 'acres' },
+    further_area: data.further_area || { value: (Math.round(Math.random()*100)).toString(), units: 'acres' },
+    operations: data.operations || [
+      { operation_type: randomOperation() }
     ],
   }
-  if (productObserved.operations[0].operation_type === 'growing') {
-    productObserved.operations[0].covering_type = (Math.random() >= 0.5) ? 'covered' : 'uncovered'
-  }
+	productObserved.operations.forEach((op, i) => {
+		if (productObserved.operations[i].operation_type === 'growing') {
+		//TODO: a bit difficult to provide optional control to this. Its up to the user when they specify a 'growing' operationn
+			productObserved.operations[i].covering_type = (Math.random() >= 0.5) ? 'covered' : 'uncovered'
+		}
+  })
   return productObserved;
 }
 
-function randomProductionSite(product, area) {
-  return {
-    name: `The Big  ${product} Ranch`,
-    id: (Math.round(Math.random()*10000)).toString(),
-    products_observed: [ {
-      name: product,
-      organic: (Math.random() >= 0.5),
-      area: { value: area, units: 'acres' }, 
-      location: {
-        description: 'down the road and hang a left',
-        city: '',
-      }
-    }],
+/* Unfinished because unnecessary as long as theres only one key
+function randomOperations() {
+  let ops = []
+	data.forEach((operation, i) => {
+		ops[i] = randomOperation
+	})
+}
+*/
+
+function randomOperation() {
+	return operationTypes[Math.round(Math.random()*operationTypes.length-1)]
+}
+
+function randomProductionSites(data) {
+	let sites = [];
+	data.forEach((site, i) => {
+		sites[i] = randomProductionSite(site);
+	})
+	// This line may not be necessary given the code from randomScope guarantees 
+	// there is always 1 item, but this function can be called by itself with an 
+	// empty array.
+	if (sites.length < 1) sites[0] = randomProductionSite({})
+	return sites
+}
+
+function randomProductionSite(data) {
+	let site = {
+    name: data.name || `The Big ${data.products_observed[0].name} Ranch`,
+    id: data.id || (Math.round(Math.random()*10000)).toString(),
+    products_observed: randomProductsObserved(data.products_observed || []),
   }
+	// The products_observed key in production sites two new keys: location and organic
+	site.products_observed.forEach((prod, i) => {
+		site.products_observed[i].organic = site.products_observed[i].organic || (Math.random() >= 0.5);
+		site.products_observed[i].location = site.products_observed[i].location ||  {
+			description: 'down the road and hang a left',
+			city: '',
+		}
+	})
+	return site;
 }
 
 function randomProducts(numProducts) {
@@ -119,25 +168,32 @@ function randomOperationTypes(numOperations) {
   return operationTypes.slice(0, numOperations)
 }
 
-function generateAudit(exampleAudit, organization, auditor, scope, year, minimizeAuditData) {
-  let auditOut = _.cloneDeep(exampleAudit)
+// Past 10 years by default; TODO: set date range
+function randomYear(data) {
+	return Math.round(Math.random()*10) + (new Date().getFullYear() - 10);
+}
+
+// Generate a random audit
+function generateAudit(data) {
+	if (!data.template) return new Error('\"template\" field required with example audit')
+  let auditOut = _.cloneDeep(data.template)
 
 // Randomize certificationid 
-  let certid = Math.round(Math.random() * 10000).toString()
-  let certNum = Math.round(Math.random() * 7).toString()
-  auditOut.certificationid = certid + ' - Cert: '+certNum
+  let certid = data.certid || Math.round(Math.random() * 10000).toString()
+  let certNum = data.certNum || Math.round(Math.random() * 7).toString()
+  auditOut.certificationid = data.certificationid || certid + ' - Cert: '+certNum
 
 //Modify auditor name
-  auditOut.certifying_body.auditor = auditor
+  auditOut.certifying_body.auditor = data.auditor || this.randomAuditor(); 
   
 // Modify the organization with random info
-  auditOut.organization = organization
+  auditOut.organization = data.organization || this.randomOrganization()
 
 //Modify scope with random info
-  auditOut.scope = scope
+  auditOut.scope = this.randomScope(data.scope || {})
 
 //Modify scope with random info
-  let randDateMs = new Date(Math.round(Math.random() * Date.now())).setFullYear(year)
+  let randDateMs = new Date(Math.round(Math.random() * Date.now())).setFullYear(randomYear(data.year || {}))
   auditOut.conditions_during_audit = { 
     operation_observed_date: new Date(randDateMs).toJSON(),
     duration: { value: (Math.round(Math.random()*5) + 1).toString(), units: 'hours', },
@@ -189,7 +245,7 @@ function generateAudit(exampleAudit, organization, auditor, scope, year, minimiz
   })
 
 
-  if (minimizeAuditData) {
+  if (data.minimizeAuditData) {
     auditOut = removeSectionsRecursive(auditOut)
     auditOut = minimizeControlPoints(auditOut)
   }
@@ -241,8 +297,12 @@ function minimizeControlPoints(audit) {
 module.exports = {
   generateAudit,
   randomProducts,
+	randomProductionSite,
+	randomProductionSites,
   randomScope,
   randomOrganization,
   randomAuditor,
+	randomOperation,
   randomOperationTypes,
+	randomYear,
 }
