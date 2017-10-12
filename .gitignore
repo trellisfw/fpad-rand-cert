@@ -1,6 +1,7 @@
 PGFS-Audit-DefaultExample.js
 GlobalGAP_FullAudit.js
 node_modules
+dist
 
 *.swp
 .DS_Store

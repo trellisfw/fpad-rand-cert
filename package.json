@@ -1,10 +1,12 @@
 {
   "name": "fpad-rand-cert",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "",
-  "main": "gg-audit-randomize.js",
+  "main": "dist/gg-audit-randomize.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "babel gg-audit-randomize.js --presets babel-preset-env --out-dir dist",
+    "prepublish": "npm run build"
   },
   "author": "",
   "license": "Apache-2.0",
@@ -16,5 +18,8 @@
     "superagent-promise": "^1.1.0",
     "uuid": "^3.0.1"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.0"
+  }
 }
