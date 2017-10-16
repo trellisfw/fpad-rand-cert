@@ -37,7 +37,6 @@ let farmNames = [
 	'Farms',
 	'Brothers Farms',
 	'Family Farms',
-	'Bountiful Harvest',
 	'Farms, LLC',
 ]
 
