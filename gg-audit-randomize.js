@@ -57,7 +57,7 @@ function randomEntry(array) {
 function randomOrganization(data) {
   let name = data.name || faker.name.firstName()+' '+faker.name.lastName()
 	// TODO: currently making up a last name. 
-	if (name.split(' ').length === 1) name = name+' '+faker.name.lastName();
+	//	if (name.split(' ').length === 1) name = name+' '+faker.name.lastName();
   return {
     name: name.split(' ')[name.split(' ').length-1]+' '+randomEntry(farmNames),
     contacts: [
