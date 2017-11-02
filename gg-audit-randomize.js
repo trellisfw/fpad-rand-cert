@@ -55,24 +55,21 @@ function randomEntry(array) {
 }
 
 function randomOrganization(data) {
-  let name = data.name || faker.name.firstName()+' '+faker.name.lastName()
-	// TODO: currently making up a last name. 
-	//	if (name.split(' ').length === 1) name = name+' '+faker.name.lastName();
+	var temp = data.contacts ? data.contacts[0].name : undefined;
+	var name = temp || faker.name.firstName() + ' ' + faker.name.lastName();
+  // TODO: currently making up a last name. 
+	//  if (name.split(' ').length === 1) name = name + ' ' + faker.name.lastName();
   return {
-    name: name.split(' ')[name.split(' ').length-1]+' '+randomEntry(farmNames),
-    contacts: [
-      { name: name }
-    ],
+    name: data.name || name.split(' ')[name.split(' ').length - 1] + ' ' + randomEntry(farmNames),
+    contacts: data.contacts || [{ name }],
     location: randomLocation(data.location || {}),
-		//TODO: didn't have time.  let this be optional
-		organizationid: data.organizationid || {
-      id: Math.round(Math.random()*1000000000).toString(),
+    //TODO: didn't have time.  let this be optional
+    organizationid: data.organizationid || {
+      id: Math.round(Math.random() * 1000000000).toString(),
       id_source: "scheme",
-      otherids: [
-        { id_source: 'certifying_body', id: Math.round(Math.random()*10000000).toString() },
-      ],
+      otherids: [{ id_source: 'certifying_body', id: Math.round(Math.random() * 10000000).toString() }]
     }
-  }
+  };
 }
 
 function randomCertifyingBody(data) {
