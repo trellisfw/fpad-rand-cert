@@ -43,13 +43,13 @@ function generateAudits(numOrganizations, numAuditors, numProducts, numYears) {
             console.log(iii++)
             let scope = randAudits.randomScope(org, prod, op)
             let audit = randAudits.generateAudit(exampleAudit, org, aud, scope, yr, minimizeAudit)
-            return agent('PUT', 'https://api.oada-dev.com/bookmarks/fpad/certifications/id-index')
+            return agent('PUT', 'https://api.oada-dev.com/bookmarks/trellisfw/certifications/id-index')
             .set('Authorization', 'Bearer '+ 'Oe33rwODi6hw8b_HXxFYsZxGJKZn9YwvfURFBWT
             .send({ })  
             .end()
             .then((response) => {
               console.log(response)
-              return agent('PUT', 'https://api.oada-dev.com/bookmarks/fpad/certifications/id-index')
+              return agent('PUT', 'https://api.oada-dev.com/bookmarks/trellisfw/certifications/id-index')
               .set('Authorization', 'Bearer '+ 'Oe33rwODi6hw8b_HXxFYsZxGJKZn9YwvfURFBWT
               .send({
                 _id: 'resources/'+uuid.v4(),
