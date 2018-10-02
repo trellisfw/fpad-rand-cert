@@ -1,11 +1,11 @@
 {
   "name": "@trellisfw/random-certs",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "description": "",
-  "main": "dist/gg-audit-randomize.js",
+  "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "babel gg-audit-randomize.js --presets babel-preset-env --out-dir dist",
+    "build": "babel index.js --presets babel-preset-env --out-dir dist",
     "prepublish": "npm run build"
   },
   "author": "",
